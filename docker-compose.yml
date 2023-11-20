@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # https://hub.docker.com/_/php/
+  shop-php:
+    environment:
+      - PHP_IDE_CONFIG=serverName=localhost
+    container_name: shop-php
+    build:
+      context: ./api
+      dockerfile: docker/php/Dockerfile
+      cache_from:
+        - ./api/docker/php
+    env_file:
+      - ./api/.env
+    volumes:
+      - ./api:/srv/api:rw,cached
+      - /usr/local/lib
+    networks:
+      - shop-network
+
+        # https://hub.docker.com/_/nginx/
+  shop-nginx:
+    container_name: shop-nginx
+    build:
+      context: ./api
+      dockerfile: docker/nginx/Dockerfile
+      cache_from:
+        - ./api/docker/nginx
+    depends_on:
+      - shop-php
+      - shop-db
+    environment:
+      - URL=http://localhost:3004/
+    volumes:
+      - ./api/public:/srv/api/public:ro 
+    ports:
+      - "127.0.0.1:3000:80"
+    expose:
+      - "8000"
+    networks:
+      - shop-network
+
+  # https://hub.docker.com/_/mysql/
+  shop-db:
+    image: mysql:8.0
+    container_name: shop-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=shop
+      - MYSQL_DATABASE=api
+      - MYSQL_USER=shop_user
+      - MYSQL_PASSWORD=shop_password
+    volumes:
+     - ./mysql:/var/lib/mysql
+    ports:
+      - '8083:3306'
+    networks:
+      - shop-network
+
+  # https://hub.docker.com/r/mailhog/mailhog
+  shop-mailhog:
+    image: mailhog/mailhog
+    container_name: shop-mailhog
+    command: ["-smtp-bind-addr", "0.0.0.0:25"]
+    user: root
+    expose:
+      - 25
+      - 8025
+    ports:
+      - "127.0.0.1:8025:8025"
+    healthcheck:
+      test: echo | telnet 127.0.0.1 25
+    networks:
+      - shop-network
+  # client:
+  #   container_name: client
+  #   build:
+  #     context: ./client
+  #     dockerfile: docker/Dockerfile
+  #   restart: on-failure
+  #   depends_on:
+  #     - shop-php
+  #     - shop-nginx
+  #     - shop-db
+  #   networks:
+  #     - shop-network
+  #   volumes:
+  #     - ./client:/client
+  #     - /client/node_modules
+  #   ports:
+  #     - '127.0.0.1:8080:8080'
+
+networks:
+  shop-network:
+    external: true
+    driver: "bridge"
+# # volumes
+# volumes:
+#   nodemodules: {}
