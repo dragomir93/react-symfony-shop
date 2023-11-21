@@ -18,7 +18,15 @@ const useStyles = makeStyles((theme) => ({
     navlink:{
       color: 'white',
       textDecoration: 'none'
-    }
+    },
+    logo: {
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2),
+        marginRight: 'auto',
+        '& img': {
+            height: '50px',
+        },
+    },
   }));
 
 const NavBar = () => {
@@ -29,13 +37,8 @@ const NavBar = () => {
       <div className={classes.root}>
         <AppBar position="static">
           <Toolbar>
-            <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-              <MenuIcon />
-            </IconButton>
-            <Link className={classes.navlink} to={publicRouteCodes.PRODUCTS}>
-              <Typography variant="h6" className={classes.title}>
-                SHOP
-              </Typography>
+            <Link className={classes.logo} to={publicRouteCodes.PRODUCTS}>
+                <img className="whitelabelLogo" alt="logo" src="/logo.svg" />
             </Link>
           </Toolbar>
         </AppBar>
