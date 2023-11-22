@@ -1,0 +1,20 @@
+includes:
+	- vendor/phpstan/phpstan-symfony/extension.neon
+	- vendor/phpstan/phpstan-doctrine/extension.neon
+	- vendor/roave/no-floaters/rules.neon
+
+parameters:
+    excludes_analyse:
+        - */Migrations/*
+        - src/Application/Service/Validator.php
+        - src/Infrastructure/Persistence/Doctrine/Repository/ExtendedEntityRepository.php
+    ignoreErrors:
+       -
+         message: '#DOMElement\|null#'
+         path:  %currentWorkingDirectory%
+       -
+         message: '#Cannot assign float|int to $amount - floats are not allowed#'
+         path:  %currentWorkingDirectory%
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    inferPrivatePropertyTypeFromConstructor: true
