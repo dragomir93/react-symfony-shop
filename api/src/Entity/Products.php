@@ -10,7 +10,6 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 /**
  *
  * Class Products
- * @SuppressWarnings(PHPMD)
  */
 #[ORM\Entity(repositoryClass: ProductsRepository::class)]
 #[Vich\Uploadable]
@@ -78,8 +77,8 @@ class Products
     }
 
     /**
-    * @param File|\Symfony\Component\HttpFoundation\File\UploadedFile|null $imageFile
-    */
+     * @param File|\Symfony\Component\HttpFoundation\File\UploadedFile|null $imageFile
+     */
     public function setImageFile(?File $imageFile = null): void
     {
         $this->imageFile = $imageFile;
