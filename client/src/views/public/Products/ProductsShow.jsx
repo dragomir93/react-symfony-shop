@@ -1,21 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
-import {Box, Card, CardContent, Container,
+import {
+  Box, Card, CardContent, Container,
   Grid,
-  Paper, Typography } from '@mui/material';
+  Paper, Typography,
+} from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
-import { useState } from 'react';
 import { publicRouteCodes } from '../../../constants/RouteCodes';
 import { getProductData } from './Api';
 
-const ProductsShow = () => {
+function ProductsShow() {
   const { id } = useParams();
   const [product, setProduct] = useState([]);
   const [selectedImage, setSelectedImage] = useState();
 
-	const useStyles = makeStyles((theme) => ({
-		root: {
+  const useStyles = makeStyles((theme) => ({
+    root: {
       flexGrow: 1,
     },
     menuButton: {
@@ -38,8 +39,8 @@ const ProductsShow = () => {
   useEffect(() => {
     getProductData(id).then((response) => {
       setProduct(response);
-    }).catch((error) => {
-    
+    }).catch(() => {
+
     });
   }, []);
 
@@ -52,19 +53,19 @@ const ProductsShow = () => {
   }, 30000);
 
   return (
-    <Container className={classes.container} maxWidth="lg">    
+    <Container className={classes.container} maxWidth="lg">
       <Paper className={classes.paper}>
         <Box display="flex" marginBottom={3}>
           <Box flexGrow={1}>
             <Typography component="h2" variant="h6" color="primary" gutterBottom>
-                Product Detail
+              Product Detail
             </Typography>
           </Box>
           <Box>
             <Link to={publicRouteCodes.HOME} style={{ textDecoration: 'none' }}>
-            <Button variant="contained" color="primary">
-              Back to preview
-            </Button>
+              <Button variant="contained" color="primary">
+                Back to preview
+              </Button>
             </Link>
           </Box>
         </Box>
@@ -73,33 +74,36 @@ const ProductsShow = () => {
             <CardContent>
               <Typography variant="h6" component="div">
                 Name:
-                </Typography>
-                <Typography>{product.name}</Typography>
-                <Typography variant="h6" component="div">
+              </Typography>
+              <Typography>{product.name}</Typography>
+              <Typography variant="h6" component="div">
                 Price:
-                </Typography>
-                <Typography>{product.price}.00 $</Typography>
-                <Typography variant="h6" component="div">
+              </Typography>
+              <Typography>
+                {product.price}
+                .00 $
+              </Typography>
+              <Typography variant="h6" component="div">
                 Description:
-                </Typography>
-                <Typography>{product.description}</Typography>
-                <Typography variant="h6" component="div">
+              </Typography>
+              <Typography>{product.description}</Typography>
+              <Typography variant="h6" component="div">
                 Image:
-                </Typography>
-                <Grid>
+              </Typography>
+              <Grid>
                 <img
                   src={selectedImage !== null ? selectedImage : `/product/image/${id}`}
                   alt={product.image}
                   loading="lazy"
                   style={{ width: '5%', height: '5%' }}
                 />
-                </Grid>
+              </Grid>
             </CardContent>
           </Card>
         </Box>
       </Paper>
     </Container>
-  )
+  );
 }
 
 export default ProductsShow;

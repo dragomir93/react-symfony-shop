@@ -5,7 +5,6 @@ import { BrowserRouter } from 'react-router-dom';
 import darkMaterialTheme from './constants/theme/Theme';
 import PublicRoutes from './routes/PublicRoutes';
 
-
 const useStyles = makeStyles(() => ({
   '@global': {
     html: {
@@ -20,19 +19,18 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-
-const App = () => {
+function App() {
   useStyles();
   return (
 
-  <Suspense fallback={<div />}>
-    <ThemeProvider theme={darkMaterialTheme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <PublicRoutes/>
-      </BrowserRouter>
-    </ThemeProvider>
-  </Suspense>
+    <Suspense fallback={<div />}>
+      <ThemeProvider theme={darkMaterialTheme}>
+        <CssBaseline />
+        <BrowserRouter>
+          <PublicRoutes />
+        </BrowserRouter>
+      </ThemeProvider>
+    </Suspense>
   );
 }
 

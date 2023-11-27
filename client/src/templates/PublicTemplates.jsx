@@ -2,15 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import NavBar from './headers/NavBar';
 
-const PublicTemplates = ({ children }) => {
-
+function PublicTemplates({ children }) {
   return (
     <>
-      <NavBar/>
+      <NavBar />
       {children}
     </>
   );
-};
+}
 
 PublicTemplates.propTypes = {
   children: PropTypes.node,

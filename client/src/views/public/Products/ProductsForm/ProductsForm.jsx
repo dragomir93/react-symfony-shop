@@ -1,59 +1,63 @@
-import { Alert, Button, Container, Grid, TextField, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { makeStyles } from "@mui/styles";
-import { publicRouteCodes } from "../../../../constants/RouteCodes";
-import ApiClient from "../../../../api/ApiClient";
-import { useNavigate, useParams } from "react-router-dom";
-import { getProductData, saveProduct } from "../Api";
+import {
+  Alert, Button, Container, Grid, TextField, Typography,
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { makeStyles } from '@mui/styles';
+import { useNavigate, useParams } from 'react-router-dom';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { Stack } from "@mui/system";
+import { Stack } from '@mui/system';
+import { publicRouteCodes } from '../../../../constants/RouteCodes';
+import ApiClient from '../../../../api/ApiClient';
+import { getProductData, saveProduct } from '../Api';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   avatar: {
     margin: theme.spacing(1),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: "100%",
+    width: '100%',
     marginTop: theme.spacing(3),
   },
 }));
 
-const ProductsForm = () => {
-
-  let navigate = useNavigate();
+function ProductsForm() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
   const [formItems, setFormItems] = useState({
-    name: "",
+    name: '',
     price: null,
-    description: "",
+    description: '',
     image: null,
   });
 
   const [itemErrors, setItemErrors] = useState({});
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  const [isUpdatedImage,setIsUpdatedImage] = useState(false);
+  const [isUpdatedImage, setIsUpdatedImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState();
+  const redirectToProductsList = () => {
+    navigate(publicRouteCodes.PRODUCTS, { state: { isCreated: true, isEdit } });
+  };
 
   useEffect(() => {
     async function fetchProductsData() {
       try {
         if (isEdit) {
-        const productData = await getProductData(id);
-        const formData = {
-          ...formItems,
-          ...productData,
-        };
+          const productData = await getProductData(id);
+          const formData = {
+            ...formItems,
+            ...productData,
+          };
 
-        await setFormItems(formData);
-      }
+          await setFormItems(formData);
+        }
       } catch (err) {
         redirectToProductsList();
       }
@@ -64,12 +68,7 @@ const ProductsForm = () => {
   const handleFormItemsChange = (value, field) => {
     setFormItems((prevState) => ({ ...prevState, [field]: value }));
   };
-
-  const redirectToProductsList = () => {
-    navigate(publicRouteCodes.PRODUCTS, {state: {isCreated:true, isEdit:isEdit} });
-  };
-  
-  const changeImage = (event, isEditable = false) => {
+  const changeImage = (event = false) => {
     setIsUpdatedImage(true);
     setIsButtonDisabled(true);
 
@@ -88,10 +87,14 @@ const ProductsForm = () => {
     const url = '/product-image/update';
     formDataCreate.append('id', id);
 
-    ApiClient.post(url,
+    ApiClient.post(
+      url,
       formDataCreate,
-      {'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',}).then(() => {
+      {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    ).then(() => {
     }).catch(({ response }) => {
       setItemErrors(response.data);
     }).finally(() => {
@@ -120,7 +123,7 @@ const ProductsForm = () => {
   const handleSubmit = () => {
     const formData = { ...formItems };
 
-    if (formItems.name.trim().length === 0){
+    if (formItems.name.trim().length === 0) {
       setItemErrors((prevState) => ({ ...prevState, name: 'Field is required' }));
     }
 
@@ -146,7 +149,7 @@ const ProductsForm = () => {
       return;
     }
     if (isEdit) {
-      saveProduct(id,formData).then(() => {
+      saveProduct(id, formData).then(() => {
         redirectToProductsList();
       }).catch(({ response }) => {
         setItemErrors(response.data);
@@ -154,11 +157,15 @@ const ProductsForm = () => {
       return;
     }
 
-    ApiClient.post("/api/product",formData,{ headers: 
-      {'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',} }).then(() => {
-        redirectToProductsList();
-      })
+    ApiClient.post('/api/product', formData, {
+      headers:
+      {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then(() => {
+      redirectToProductsList();
+    })
       .catch(({ response }) => {
         setItemErrors(response.data);
       });
@@ -179,115 +186,133 @@ const ProductsForm = () => {
   }, 3000);
 
   const classes = useStyles();
-  
+
   return (
-  <div>
-  <Container maxWidth="xs">
-      <div className={classes.paper}>
-        <Typography component="h1" variant="h5" color="primary" gutterBottom>
-          Product {!isEdit ? "create" : "edit"}
-        </Typography>
-        <form className={classes.form}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                autoFocus
-                autoComplete="name"
-                name="name"
-                variant="outlined"
-                required
-                fullWidth
-                id="name"
-                label="Name"
-                value={formItems.name}
-                error={hasSharedError('name')}
-                helperText={getSharedErrorMessage('name')}
-                onChange={(event) =>
-                  handleFormItemsChange(event.target.value, "name")
-                }
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                value={formItems.price == null ? '' : formItems.price}
-                id="price"
-                label="Price"
-                error={hasSharedError('price')}
-                helperText={getSharedErrorMessage('price')}
-                onChange={(event) =>
-                  handleFormItemsChange(event.target.value, "price")
-                }
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                autoComplete="description"
-                variant="outlined"
-                required
-                fullWidth
-                id="description"
-                label="Description"
-                value={formItems.description}
-                error={hasSharedError('description')}
-                helperText={getSharedErrorMessage('description')}
-                onChange={(event) =>
-                  handleFormItemsChange(event.target.value, "description")
-                }
-              />
-            </Grid>
-            <Grid item xs={12}>
-              {!isEdit && (
-              <Button variant="contained" component="label" disabled={isButtonDisabled} color="warning">
-                Add image &nbsp;<CloudUploadIcon/>
-                <input hidden  accept="image/*" multiple type="file" onChange={(event) => {
-                addImage(event);
-              }}/>
-              </Button>
-              )}
-              {isEdit && (
+    <div>
+      <Container maxWidth="xs">
+        <div className={classes.paper}>
+          <Typography component="h1" variant="h5" color="primary" gutterBottom>
+            Product
+            {' '}
+            {!isEdit ? 'create' : 'edit'}
+          </Typography>
+          <form className={classes.form}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  autoFocus
+                  autoComplete="name"
+                  name="name"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="name"
+                  label="Name"
+                  value={formItems.name}
+                  error={hasSharedError('name')}
+                  helperText={getSharedErrorMessage('name')}
+                  onChange={(event) => handleFormItemsChange(event.target.value, 'name')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  value={formItems.price == null ? '' : formItems.price}
+                  id="price"
+                  label="Price"
+                  error={hasSharedError('price')}
+                  helperText={getSharedErrorMessage('price')}
+                  onChange={(event) => handleFormItemsChange(event.target.value, 'price')}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  autoComplete="description"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="description"
+                  label="Description"
+                  value={formItems.description}
+                  error={hasSharedError('description')}
+                  helperText={getSharedErrorMessage('description')}
+                  onChange={(event) => handleFormItemsChange(event.target.value, 'description')}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                {!isEdit && (
                 <Button variant="contained" component="label" disabled={isButtonDisabled} color="warning">
-                  {formItems.image ? 'Change image' : 'Add image'} &nbsp;<CloudUploadIcon/>
-                  <input hidden  accept="image/*" multiple type="file" onChange={(event) => {
-                  changeImage(event, true);
-                }}/>
+                  Add image &nbsp;
+                  <CloudUploadIcon />
+                  <input
+                    hidden
+                    accept="image/*"
+                    multiple
+                    type="file"
+                    onChange={(event) => {
+                      addImage(event);
+                    }}
+                  />
                 </Button>
-              )}
-              {isEdit && (
+                )}
+                {isEdit && (
+                <Button variant="contained" component="label" disabled={isButtonDisabled} color="warning">
+                  {formItems.image ? 'Change image' : 'Add image'}
+                  {' '}
+                  <CloudUploadIcon />
+                  <input
+                    hidden
+                    accept="image/*"
+                    multiple
+                    type="file"
+                    onChange={(event) => {
+                      changeImage(event, true);
+                    }}
+                  />
+                </Button>
+                )}
+                {isEdit && (
                 <Grid>
                   <img
-                  src={selectedImage !== null ? selectedImage : `/product/image/${id}`}
-                  alt={formItems.image}
-                  loading="lazy"
-                  style={{ width: '35%', height: '35%', marginTop: '3%'}}
+                    src={selectedImage !== null ? selectedImage : `/product/image/${id}`}
+                    alt={formItems.image}
+                    loading="lazy"
+                    style={{ width: '35%', height: '35%', marginTop: '3%' }}
                   />
                 </Grid>
-              )} 
+                )}
+              </Grid>
             </Grid>
-          </Grid>
-          <Button
-            onClick={handleSubmit}
-            fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ marginTop: 2 }}
-          >
-               {!isEdit
+            <Button
+              onClick={handleSubmit}
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ marginTop: 2 }}
+            >
+              {!isEdit
                 ? <Typography>CREATE</Typography>
                 : <Typography>SAVE</Typography>}
-          </Button>
-        </form>
-      </div>
-    </Container>
-    {isUpdatedImage &&
-      <Stack sx={{ width: '13%',marginTop:'80px',marginLeft:'10px',position:'fixed',top:0}}>
-        <Alert severity="success"> {isEdit ? 'Image changed successfully': 'Image added successfully'}</Alert>
+            </Button>
+          </form>
+        </div>
+      </Container>
+      {isUpdatedImage
+      && (
+      <Stack sx={{
+        width: '13%', marginTop: '80px', marginLeft: '10px', position: 'fixed', top: 0,
+      }}
+      >
+        <Alert severity="success">
+          {' '}
+          {isEdit ? 'Image changed successfully' : 'Image added successfully'}
+        </Alert>
       </Stack>
-    }
+      )}
     </div>
   );
-};
+}
 
 export default ProductsForm;
