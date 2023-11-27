@@ -56,7 +56,6 @@ function Products() {
   };
 
   useEffect(() => {
-    console.log(location.state);
     if (location.state !== null) {
       if (location.state.isEdit) {
         setIsUpdatedProduct(location.state.isCreated);
